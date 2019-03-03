@@ -8,7 +8,7 @@ Run the following maven command
 
 `mvn spring-boot:run -Dspring-boot.run.arguments=username`
 
-Here username is a variable. Can use any username. If github has profile information for given username, application will output information similar to following. 
+Here ___username___ is a variable. Can use any username. If github has profile information for given username, application will output information similar to following. 
 
 ```Github username : ghtvnath
 Github user : Tharindu Vishwanath
