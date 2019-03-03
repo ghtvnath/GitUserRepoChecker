@@ -16,6 +16,13 @@ public class InformationOutputServiceImpl implements InformationOutputService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(InformationOutputServiceImpl.class);
 
+    /**
+     * <p>This method is invoked to display basic user information username (login) and name</p>
+     *
+     * @param out PrintStream to which the output should be written
+     * @param user User for whose the information should be displayed
+     * @throws RepoCheckerAppException
+     */
     @Override
     public void displayUserInformation(PrintStream out, User user) throws RepoCheckerAppException {
         try {
@@ -29,6 +36,14 @@ public class InformationOutputServiceImpl implements InformationOutputService {
         }
     }
 
+    /**
+     * <p>This method is invoked to display the list of Repository names and the contributors list of
+     * each repository</p>
+     *
+     * @param out PrintStream to which the output should be written
+     * @param githubRepoList List<GithubRepo> List of GithubRepo of which information should be displayed
+     * @throws RepoCheckerAppException
+     */
     @Override
     public void displayRepositoryInformation(PrintStream out, List<GithubRepo> githubRepoList)
             throws RepoCheckerAppException {
@@ -45,7 +60,7 @@ public class InformationOutputServiceImpl implements InformationOutputService {
         }
     }
 
-    protected void printRepoDetails(PrintStream out, GithubRepo repo) {
+    private void printRepoDetails(PrintStream out, GithubRepo repo) {
         out.println(String.format("Repo name : %s", repo.getRepoName()));
         if (CollectionUtils.isEmpty(repo.getContributors())) {
             out.println("\t\t---- No contributors ----");

@@ -19,10 +19,10 @@ public class RepoCheckerUtils {
 
             for (String str : strArr1) {
                 if (str.contains(NEXT_URL_INDICATOR)) {
-                    LOGGER.info("Parse next url info from link header - {}", linkHeaderInfo);
+                    LOGGER.debug("Parse next url info from link header - {}", linkHeaderInfo);
                     String s = str.split(NAVIGATION_KEY_VALUE_SEPARATOR)[0].trim();
                     nextUrl = s.substring(1, s.length() - 1);
-                    LOGGER.info("Parsed next url - {}", nextUrl);
+                    LOGGER.debug("Parsed next url - {}", nextUrl);
                     break;
                 }
             }

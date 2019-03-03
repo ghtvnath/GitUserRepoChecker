@@ -16,13 +16,13 @@ public class RestTemplateErrorHandler implements ResponseErrorHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(RestTemplateErrorHandler.class);
 
     /**
-     * @param clientHttpResponse
-     * @return
-     * @throws IOException
-     *
      * <p>If the status code is not 200 by RestTemplate response, this method is used to
-     *    log error response details.
-     *    When true is returned from this method, handleError method would be invoked.</p>
+     * log error response details.
+     * When true is returned from this method, handleError method would be invoked.</p>
+     *
+     * @param clientHttpResponse Response received from Github API
+     * @return boolean True if an error occurred, false if expected response status 200, 201
+     * @throws IOException
      */
     @Override
     public boolean hasError(ClientHttpResponse clientHttpResponse) throws IOException {
@@ -36,15 +36,15 @@ public class RestTemplateErrorHandler implements ResponseErrorHandler {
     }
 
     /**
-     * @param clientHttpResponse
-     * @throws IOException
-     *
      * <p>When hasError method returns true to indicate that there is Error in response,
-     *    this method is invoked which in return will throw ServiceInvokationException. </p>
+     * this method is invoked which in return will throw ServiceInvokationException. </p>
+     *
+     * @param clientHttpResponse Response received from Github API
+     * @throws ServiceInvokerException Handle error will throw ServiceInvokerException
      */
     @Override
-    public void handleError(ClientHttpResponse clientHttpResponse) throws IOException {
-            LOGGER.error("Throwing ServiceInvokationException");
-            throw new ServiceInvokerException("Error occurred while retrieving user information");
+    public void handleError(ClientHttpResponse clientHttpResponse) throws ServiceInvokerException {
+        LOGGER.error("Throwing Service Invoker Exception");
+        throw new ServiceInvokerException("Error occurred while retrieving user information");
     }
 }

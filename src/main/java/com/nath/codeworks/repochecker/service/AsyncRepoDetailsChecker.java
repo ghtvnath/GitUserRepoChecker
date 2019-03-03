@@ -7,34 +7,32 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class AysncRepoDetailsChecker implements Callable<GithubRepo>{
+public class AsyncRepoDetailsChecker implements Callable<GithubRepo>{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AysncRepoDetailsChecker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncRepoDetailsChecker.class);
 
     private RestTemplate restTemplate;
     private String url;
     private String repoName;
 
-    protected AysncRepoDetailsChecker(RestTemplate restTemplate, String url, String repoName) {
+    protected AsyncRepoDetailsChecker(RestTemplate restTemplate, String url, String repoName) {
         this.restTemplate = restTemplate;
         this.url = url;
         this.repoName = repoName;
     }
 
     /**
-     * @return ResponseEntity<List<Contributor>>
-     * @throws Exception
-     *
      * <p>This method will be run in ExecutorService. Hence contributions per repository
      * can be retrieved in parallel. This would be used only if the order in which
      * repositories are displayed does not matter.</p>
+     *
+     * @return GithubRepo This would contain the repository name, and list of contributors
+     * @throws Exception
      */
     @Override
     public GithubRepo call() throws Exception {

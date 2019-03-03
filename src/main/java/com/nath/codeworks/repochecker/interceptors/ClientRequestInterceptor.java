@@ -15,19 +15,22 @@ public class ClientRequestInterceptor implements ClientHttpRequestInterceptor{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientRequestInterceptor.class);
 
-    private static final String AUTHORIZATION_HEADER_NAME = "Authorization";
     private static final String USER_AGENT_HEADER_NAME = "User-Agent";
     private static final String USER_AGENT_HEADER_VALUE = "RepoChecker";
 
     /**
-     * Add Authorization and User-Agent Request headers with every Github API Rest Request
+     * Add headers that should be with every Github API Rest Request
      */
     @Override
     public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes,
                                         ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
         LOGGER.debug("Adding request headers to Github API Request {}", httpRequest.getURI());
-        httpRequest.getHeaders().add(AUTHORIZATION_HEADER_NAME, "token 30f77ce99fe4b3ec07f3cd8b29870d79d646c5ac");
         httpRequest.getHeaders().add(USER_AGENT_HEADER_NAME, USER_AGENT_HEADER_VALUE);
+
+        /* later, Authorization header also can be added here with every request that is being sent by the
+        Application. Currently only 60 requests per hour is supported by Github for unauthenticated access.
+        With a token, this can be increased to 5000. */
+
         return clientHttpRequestExecution.execute(httpRequest, bytes);
     }
 }

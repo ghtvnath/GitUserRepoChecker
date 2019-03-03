@@ -36,7 +36,7 @@ public class GithubResultList<T> {
     }
 
     public boolean hasNext() {
-        return StringUtils.isBlank(nextPageUrl);
+        return StringUtils.isNotBlank(nextPageUrl);
     }
 
 

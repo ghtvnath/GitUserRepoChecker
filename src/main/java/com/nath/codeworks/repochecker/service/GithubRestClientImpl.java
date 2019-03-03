@@ -18,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -52,21 +53,26 @@ public class GithubRestClientImpl implements GithubRestClient {
     }
 
     private static final String AMP_STR = "&";
-    private static final String QM_STR  = "?";
+    private static final String QM_STR = "?";
     private static final String LINK_STR = "Link";
     private static final String PER_PAGE_QP = "per_page=";
 
 
     /**
-     * @param username
-     * @return
-     * @throws ServiceInvokerException (Runtime Exception)
-     * @throws RepoCheckerAppException <p>Provided username as the input, this service would fetch User info by invoking
-     *                                 Github user API. If there is no such user exists, or if the service invocation to
-     *                                 Github API fails, this service would throw ServiceInvokerException runtime exception.</p>
+     * <p>Provided username as the input, this service would fetch User info by invoking
+     * Github user API. If there is no such user exists, or if the service invocation to
+     * Github API fails, this service would throw ServiceInvokerException runtime exception.</p>
+     *
+     * @param username String representing the github login of the user whose information that must be
+     *                 retrieved from Github
+     * @return User with user information
+     * @throws ServiceInvokerException Runtime Exception if any connectivity issues happen while invoking Github APIs
+     *         or User profile is not found
+     * @throws RepoCheckerAppException if any application error occurs
      */
     @Override
     public User getGithubUserInfo(String username) throws ServiceInvokerException, RepoCheckerAppException {
+        LOGGER.debug("Getting user information for username {}", username);
         if (StringUtils.isBlank(username)) {
             LOGGER.error("Username cannot be empty to fetch user info from Github.");
             /* as username is an input that is provided by the user,
@@ -74,7 +80,7 @@ public class GithubRestClientImpl implements GithubRestClient {
             throw new RepoCheckerAppException("Username cannot be empty to fetch user info from Github.");
         }
 
-        User user = null;
+        User user;
         try {
             user = restTemplate.getForObject(properties.getUserUrl(), User.class, username);
         } catch (ServiceInvokerException siEx) {
@@ -88,44 +94,48 @@ public class GithubRestClientImpl implements GithubRestClient {
     }
 
     /**
-     * @param repositoriesApiUrl
-     * @return
-     * @throws ServiceInvokerException (Runtime Exception)
-     * @throws RepoCheckerAppException <p>Provided repositoriesApiUrl as the input, this service would fetch Git Repositories details
-     *                                 by invoking Github API. If the service invocation to Github API fails, this service would throw
-     *                                 ServiceInvokerException runtime exception.</p>
+     * <p>Provided repositoriesApiUrl as the input, this service would fetch Git Repositories details
+     * by invoking Github API. If the service invocation to Github API fails, this service would throw
+     * ServiceInvokerException runtime exception.</p>
+     *
+     * @param repositoriesApiUrl String API which should be called to get list of Repositories
+     * @return List<Repository>
+     * @throws ServiceInvokerException Runtime Exception if any connectivity issues happen while invoking Github APIs
+     * @throws RepoCheckerAppException if any application error occurs
      */
     @Override
     public GithubResultList<Repository> getGithubRepositories(String repositoriesApiUrl) throws ServiceInvokerException,
             RepoCheckerAppException {
+        LOGGER.debug("Getting Github repositories by URL {}", repositoriesApiUrl);
         try {
             StringBuilder sb = new StringBuilder(repositoriesApiUrl);
-            if (repositoriesApiUrl.contains(QM_STR)){
+            if (repositoriesApiUrl.contains(QM_STR)) {
                 sb.append(AMP_STR);
-            }else{
+            } else {
                 sb.append(QM_STR);
             }
-            repositoriesApiUrl = sb.toString();
             sb.append(PER_PAGE_QP).append(properties.getResultsPerPage());
+            repositoriesApiUrl = sb.toString();
+
             ResponseEntity<List<Repository>> response = restTemplate.exchange(
                     repositoriesApiUrl,
                     HttpMethod.GET,
                     null,
-                    new ParameterizedTypeReference<List<Repository>>() {});
+                    new ParameterizedTypeReference<List<Repository>>() {
+                    });
 
             List<Repository> listOfRepositories = response.getBody();
-            String nexPagetUrl = null;
+            String nexPageUrl = null;
 
-            String linkHeader = response.getHeaders().get(LINK_STR).get(0);
+            List<String> linkHeadersList = response.getHeaders().get(LINK_STR);
 
-            if (StringUtils.isNoneBlank(linkHeader)) {
-                nexPagetUrl = RepoCheckerUtils.parseNextUrl(linkHeader);
+            if (!CollectionUtils.isEmpty(linkHeadersList)) {
+                String linkHeader = linkHeadersList.get(0);
+                LOGGER.debug("Parsing Link Header information to check and get next page url");
+                nexPageUrl = RepoCheckerUtils.parseNextUrl(linkHeader);
             }
 
-            GithubResultList<Repository> githubRepoResultList = new GithubResultList<>(listOfRepositories, nexPagetUrl);
-
-            return githubRepoResultList;
-
+            return new GithubResultList<>(listOfRepositories, nexPageUrl);
         } catch (ServiceInvokerException siEx) {
             LOGGER.error("ServiceInvokerException occurred while getting Github Repositories for User. {}", siEx.getMessage());
             throw siEx;
@@ -137,6 +147,18 @@ public class GithubRestClientImpl implements GithubRestClient {
     }
 
 
+    /**
+     * <p>Provided a list of Repository, this method would call each repository
+     * contributors url in parallel, accumulate that information into GithubRepo,
+     * a data transfer object which hold both repository name and contributors
+     * names </p>
+     *
+     * @param listOfRepositories List of user Repository
+     * @return List<GithubRepo>  List of GithubRepo, each contains repository names, and list of
+     * contributors ordered by number of contributions in descending order
+     * @throws ServiceInvokerException if any connectivity issues happen while invoking Github APIs
+     * @throws RepoCheckerAppException if any application error occurs
+     */
     public List<GithubRepo> getRepositoryContributors(List<Repository> listOfRepositories)
             throws ServiceInvokerException, RepoCheckerAppException {
         try {
@@ -152,7 +174,7 @@ public class GithubRestClientImpl implements GithubRestClient {
                 StringBuilder sb = new StringBuilder(repository.getContributors_url());
                 sb.append(QM_STR).append(PER_PAGE_QP).append(properties.getResultsPerPage());
                 String contributorUrl = sb.toString();
-                gitHubRepoFutures.add(executorService.submit(new AysncRepoDetailsChecker(restTemplate,
+                gitHubRepoFutures.add(executorService.submit(new AsyncRepoDetailsChecker(restTemplate,
                         contributorUrl, repository.getName())));
             }
             List<GithubRepo> listOfGitHubRepo = new ArrayList<>(listOfRepositories.size());

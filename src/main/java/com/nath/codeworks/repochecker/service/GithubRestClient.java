@@ -9,6 +9,7 @@ import com.nath.codeworks.repochecker.model.ghresponse.User;
 
 import java.util.List;
 
+
 public interface GithubRestClient {
 
     User getGithubUserInfo (String username) throws ServiceInvokerException, RepoCheckerAppException;
