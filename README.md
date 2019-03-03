@@ -3,14 +3,14 @@ This project is a Java command line application. It accepts Github username as i
 
 The printing will be similar to following. 
 
-# Run application
+## Run application
 Run the following maven command
 
-mvn spring-boot:run -Dspring-boot.run.arguments=username
+`mvn spring-boot:run -Dspring-boot.run.arguments=username`
 
 Here username is a variable. Can use any username. If github has profile information for given username, application will output information similar to following. 
 
-Github username : ghtvnath
+```Github username : ghtvnath
 Github user : Tharindu Vishwanath
 
 Repo name : PackageOptimizer
@@ -20,14 +20,15 @@ Repo name : PackageOptimizer
 Repo name : stocks-rest-app
 		---- Contributors and number of contributions ----
 		ghtvnath (10)
-    nuzlyazhar (3)
+    		nuzlyazhar (3)
 
 Repo name : stocks-view-app
 		---- Contributors and number of contributions ----
 		ghtvnath (11)
-    tsomasiri (7)
+    		tsomasiri (7) 
+```
     
-# Technologies
+## Technologies
 
 Application is built using Java and Spring Boot. Maven has been used for dependency management. 
 Choice of Spring Boot to smoothly transition the application to next iterations. 
