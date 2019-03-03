@@ -36,7 +36,7 @@ Application is built using Java and Spring Boot. Maven has been used for depende
 Choice of Spring Boot to smoothly transition the application to next iterations. 
 
 ## Current limitations
-Application can only invoke 60 Github APIs per hour. This would limit getting information of users who have a large number of public repositories in Github. Currently all requests to Github API are sent through an Interceptor which append common headers. In next iterations, application can send Authorization header with token which will increase hourly limit of API calls to 5000.
+Application can only invoke 60 Github APIs per hour. This would limit getting information of users who have a large number of public repositories in Github. Currently all requests to Github API are sent through an Interceptor which append common headers. In next iterations, application can be improved to send Authorization header with token which will increase hourly limit of API calls to 5000.
 
 When application can invoke as many as 5000 Github API requests, it can display all the repositories of any user. Maximum number of user repositories infomation retrieved by Github is limited to 100, but the application logic is capable of determining the next url in the rest response and invoke it to get more information until all the repositories are received.
 
