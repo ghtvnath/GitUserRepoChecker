@@ -3,6 +3,13 @@ This project is a Java command line application. It accepts Github username as i
 
 The printing will be similar to following. 
 
+## Test Application
+- Open command prompt or terminal
+- Move to the project directory
+- Run the following command which will run the Unit Test cases.
+
+`mvn test`
+
 ## Run application
 - Open command prompt or terminal
 - Move to the project directory
