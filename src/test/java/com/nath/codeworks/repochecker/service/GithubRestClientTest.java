@@ -11,7 +11,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
@@ -64,8 +63,7 @@ public class GithubRestClientTest {
 
         when(restTemplateBuilder.build()).thenReturn(restTemplate);
 
-        when(restClientProperties.getUserUrl()).thenReturn(USER_API_URL);
-        when(restClientProperties.getResultsPerPage()).thenReturn(30);
+
 
         githubRestClient = new GithubRestClientImpl(restTemplateBuilder, clientHttpRequestInterceptor,
                 restTemplateErrorHandler, restClientProperties);
@@ -86,6 +84,7 @@ public class GithubRestClientTest {
 
     @Test
     public void testGetGithubUserInfo() throws ServiceInvokerException, RepoCheckerAppException {
+        when(restClientProperties.getUserUrl()).thenReturn(USER_API_URL);
         User user = githubRestClient.getGithubUserInfo(VALID_GITHUB_USERNAME);
         Assert.assertNotNull(user);
         Assert.assertEquals(VALID_GITHUB_USERNAME, user.getLogin());
@@ -93,12 +92,19 @@ public class GithubRestClientTest {
 
     @Test
     public void testGetGithubUserInfoInvalidUser() throws ServiceInvokerException, RepoCheckerAppException {
+        when(restClientProperties.getUserUrl()).thenReturn(USER_API_URL);
         User user = githubRestClient.getGithubUserInfo(INVALID_GITHUB_USERNAME);
         Assert.assertNull(user);
     }
 
+    @Test(expected = RepoCheckerAppException.class)
+    public void testGetGithubUserInfoInvalidUsername() throws ServiceInvokerException, RepoCheckerAppException {
+        User user = githubRestClient.getGithubUserInfo(null);
+    }
+
     @Test
-    public void testGetGithubRepositories() throws RepoCheckerAppException {
+    public void testGetGithubRepositories() throws ServiceInvokerException, RepoCheckerAppException {
+        when(restClientProperties.getResultsPerPage()).thenReturn(30);
         when(restTemplate.exchange(
                 eq("https://api.github.com/users/ghtvnath/repos?per_page=30"),
                 eq(HttpMethod.GET),

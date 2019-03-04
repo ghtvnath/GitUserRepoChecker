@@ -2,7 +2,6 @@ package com.nath.codeworks.repochecker.model.dto;
 
 import com.nath.codeworks.repochecker.model.ghresponse.Contributor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GithubRepo {

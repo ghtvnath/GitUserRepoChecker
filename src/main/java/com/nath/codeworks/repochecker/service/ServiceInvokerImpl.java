@@ -57,7 +57,7 @@ public class ServiceInvokerImpl implements ServiceInvoker{
                     outputService.displayRepositoryInformation(System.out, githubRepoList);
 
                     repositoriesUrl = githubRepoResult.getNextPageUrl();
-                    LOGGER.info("Next page url for repositories {}", repositoriesUrl);
+                    LOGGER.debug("Next page url for repositories {}", repositoriesUrl);
                 }
             }
         } catch (ServiceInvokerException siEx) {

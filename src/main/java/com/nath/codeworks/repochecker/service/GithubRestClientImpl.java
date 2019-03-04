@@ -23,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -178,8 +179,14 @@ public class GithubRestClientImpl implements GithubRestClient {
                         contributorUrl, repository.getName())));
             }
             List<GithubRepo> listOfGitHubRepo = new ArrayList<>(listOfRepositories.size());
+
             for (Future<GithubRepo> githubRepoFuture : gitHubRepoFutures) {
-                listOfGitHubRepo.add(githubRepoFuture.get());
+                try{
+                    listOfGitHubRepo.add(githubRepoFuture.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    LOGGER.error("Error occurred while executing parallel processing of Repository details", e);
+                    throw new ServiceInvokerException("Error occurred while executing parallel processing of Repository details");
+                }
             }
 
             // shutdown executor service after executing

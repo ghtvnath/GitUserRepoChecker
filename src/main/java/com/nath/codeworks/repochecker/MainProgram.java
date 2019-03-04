@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 @SpringBootApplication
 public class MainProgram implements CommandLineRunner {
@@ -19,8 +20,9 @@ public class MainProgram implements CommandLineRunner {
 
     public static void main(String[] args) {
         LOGGER.info("**************** Starting the GitUserRepoCheckerApplication ****************");
-        SpringApplication.run(MainProgram.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(MainProgram.class, args);
         LOGGER.info("******************  GitUserRepoCheckerApplication Finished *****************");
+        SpringApplication.exit(context);
     }
 
     @Override
@@ -31,6 +33,7 @@ public class MainProgram implements CommandLineRunner {
                     "Please run the application with Github user ID to retrieve information.");
         } else{
             String username = args[0];
+            LOGGER.info("username - {}", username);
             serviceInvoker.displayUserGitRepoInformation(username);
         }
     }

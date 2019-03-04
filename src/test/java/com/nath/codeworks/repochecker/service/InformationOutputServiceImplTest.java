@@ -57,8 +57,6 @@ public class InformationOutputServiceImplTest {
     }
 
 
-
-
     private User getUser () {
         User user = new User();
         user.setLogin("ghtvnath");
